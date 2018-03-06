@@ -42,7 +42,6 @@ model.simp <- '
                 total2    := c2 + (a2*b2) 
 
 '
-# G_on_a1a2 := a1 - a2 G_on_b1b2 := b1 - b2 G_on_ind := indirect1 - indirect2 G_on_dir := direct1 - direct2 G_on_tot := total1 - total2
 
 fit <- sem(model.simp, data = dat, group = "group",  test = "bootstrap")
 summary(fit)
