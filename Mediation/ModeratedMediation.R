@@ -18,6 +18,30 @@ setwd('D:\\OneDrive\\Research\\GroupHelpAndPainRelief\\Github\\')
 dat <- read.table('mediation_data.csv', header = T, sep = ",")
 names(dat)
 
+
+# ******************************** #
+##  Test absence of group          ##
+# ******************************** #
+
+model.nogroup <- '
+                # combined outcome model: Y ~ c*X; Mediator model 2: Y ~ b*M
+# ------------------------
+diff_pre_post ~ c*impression_ratings + age
+
+# mediator models 1: M ~ a*X; 
+# --------------------------------------
+learning_signal ~ a*impression_ratings + age 
+diff_pre_post ~ b*learning_signal #(age omitted because duplicate model element)
+
+indirect := a*b
+direct   := c
+total    := c + (a*b)
+'
+
+fit.ng <- sem(model.nogroup, data = dat, test = "bollen.stine")
+summary(fit.ng, standardized = T, fit.measures = T, rsq = T)
+
+
 # ******************************** #
 ## core mediation model           ##
 # ******************************** #
@@ -106,33 +130,9 @@ direct1 == direct2
 fit2 <- sem(model.simp2, data = dat, group = "group")
 summary(fit2, standardized = T, fit.measures = T, rsq = T)
 
-
-# ******************************** #
-## R1: Test absence of group           ##
-# ******************************** #
-
-model.nogroup <- '
-                # combined outcome model: Y ~ c*X; Mediator model 2: Y ~ b*M
-# ------------------------
-diff_pre_post ~ c*impression_ratings + age
-
-# mediator models 1: M ~ a*X; 
-# --------------------------------------
-learning_signal ~ a*impression_ratings + age 
-diff_pre_post ~ b*learning_signal #(age omitted because duplicate model element)
-
-indirect := a*b
-direct   := c
-total    := c + (a*b)
-'
-
-fit.ng <- sem(model.nogroup, data = dat, test = "bollen.stine")
-summary(fit.ng, standardized = T, fit.measures = T, rsq = T)
-
 # These anovas test the influence of constraints on model fit.
 # These model comparisons form the basis of the inferences on group influences, as the enable
 # testing the influence of group on the constrained parameters. 
 
 anova(fit,fit1,test="Chisq")
 anova(fit,fit2,test="Chisq")
-anova(fit.ng,fit,test="Chisq")
