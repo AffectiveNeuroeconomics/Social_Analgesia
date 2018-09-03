@@ -43,8 +43,8 @@ model.simp <- '
 
 '
 
-fit <- sem(model.simp, data = dat, group = "group",  test = "bootstrap")
-summary(fit)
+fit <- sem(model.simp, data = dat, group = "group", test = "bollen.stine")
+summary(fit, standardized = T, fit.measures = T, rsq = T)
 
 
 # ********************************************* #
@@ -76,7 +76,7 @@ indirect1 == indirect2
 '
 
 fit1 <- sem(model.simp1, data = dat, group = "group")
-summary(fit1)
+summary(fit1, standardized = T, fit.measures = T, rsq = T)
 
 
 ### Constraint 2: direct paths do not differ across groups ###
@@ -104,7 +104,30 @@ direct1 == direct2
 '
 
 fit2 <- sem(model.simp2, data = dat, group = "group")
-summary(fit2)
+summary(fit2, standardized = T, fit.measures = T, rsq = T)
+
+
+# ******************************** #
+## R1: Test absence of group           ##
+# ******************************** #
+
+model.nogroup <- '
+                # combined outcome model: Y ~ c*X; Mediator model 2: Y ~ b*M
+# ------------------------
+diff_pre_post ~ c*impression_ratings + age
+
+# mediator models 1: M ~ a*X; 
+# --------------------------------------
+learning_signal ~ a*impression_ratings + age 
+diff_pre_post ~ b*learning_signal #(age omitted because duplicate model element)
+
+indirect := a*b
+direct   := c
+total    := c + (a*b)
+'
+
+fit.ng <- sem(model.nogroup, data = dat, test = "bollen.stine")
+summary(fit.ng, standardized = T, fit.measures = T, rsq = T)
 
 # These anovas test the influence of constraints on model fit.
 # These model comparisons form the basis of the inferences on group influences, as the enable
@@ -112,3 +135,4 @@ summary(fit2)
 
 anova(fit,fit1,test="Chisq")
 anova(fit,fit2,test="Chisq")
+anova(fit.ng,fit,test="Chisq")
